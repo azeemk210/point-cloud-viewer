@@ -9,6 +9,21 @@
   <link rel="stylesheet" href="libs/openlayers3/ol.css" />
   <link rel="stylesheet" href="libs/spectrum/spectrum.css" />
   <link rel="stylesheet" href="libs/jstree/themes/mixed/style.css" />
+  <style>
+    /* Peer list overlay (corner, non-obstructive). */
+    #peer_list {
+      position: fixed; top: 10px; right: 10px; z-index: 1000;
+      min-width: 140px; max-width: 220px; padding: 8px 10px;
+      background: rgba(20, 20, 20, 0.72); color: #eee;
+      font: 12px/1.4 system-ui, sans-serif; border-radius: 6px;
+      pointer-events: none; /* clicks/drags pass through to the 3D view */
+    }
+    #peer_list h2 { margin: 0 0 6px; font-size: 12px; font-weight: 600; opacity: 0.85; }
+    #peer_list ul { margin: 0; padding: 0; list-style: none; }
+    #peer_list li { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
+    #peer_list .swatch { width: 10px; height: 10px; border-radius: 2px; flex: 0 0 auto; }
+    #peer_list .empty { opacity: 0.6; font-style: italic; }
+  </style>
 </head>
 <body>
   <!-- Load order mirrors examples/copc.html (potree@develop); order matters. -->
@@ -29,6 +44,11 @@
   <div class="potree_container" style="position:absolute;width:100%;height:100%;left:0;top:0;">
     <div id="potree_render_area" style="background-image:url('build/potree/resources/images/background.jpg');"></div>
     <div id="potree_sidebar_container"></div>
+  </div>
+
+  <div id="peer_list" aria-live="polite">
+    <h2>Peers</h2>
+    <ul></ul>
   </div>
 
   <script type="module" src="app.js"></script>
