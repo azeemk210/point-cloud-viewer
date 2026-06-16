@@ -1,0 +1,18 @@
+# One command:  docker compose up
+#   S3 (no local file):   USE_S3_FALLBACK=1 docker compose up
+#   Local 2 GB file:      COPC_FILE=/abs/path/sofi.copc.laz docker compose up
+# Open http://localhost:8000 once it's up.
+services:
+  app:
+    build: .
+    image: point-cloud-viewer
+    ports:
+      - "8000:8000"
+    environment:
+      USE_S3_FALLBACK: "${USE_S3_FALLBACK:-}"
+      COPC_PATH: /data/sofi.copc.laz
+    volumes:
+      # Host COPC -> container (read-only); override the host side with COPC_FILE.
+      # In S3 mode the default source may not exist, so Docker creates an empty
+      # dir there — harmless (backend 404s /copc, the frontend uses S3).
+      - "${COPC_FILE:-./data/sofi.copc.laz}:/data/sofi.copc.laz:ro"

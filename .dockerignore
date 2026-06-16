@@ -1,0 +1,12 @@
+# Keep the build context small; never ship the big/irrelevant stuff.
+.git
+.gitignore
+venv/
+data/
+**/__pycache__/
+*.pyc
+*.pyo
+*.md
+Dockerfile
+docker-compose.yml
+.dockerignore
