@@ -27,7 +27,7 @@ async function init() {
   }
 
   const viewer = new Potree.Viewer(document.getElementById("potree_render_area"));
-  window.viewer = viewer; // Phase 3+: peer cones live on viewer.scene.scene
+  window.viewer = viewer; // Phase 4: peer cones live on viewer.scene.scene
 
   viewer.setEDLEnabled(true);
   viewer.setFOV(60);
@@ -41,6 +41,69 @@ async function init() {
     material.pointSizeType = Potree.PointSizeType.ADAPTIVE;
     material.activeAttributeName = "elevation"; // elevation coloring ON by default
     viewer.fitToScreen(0.5);
+  });
+
+  setupSync(viewer); // open the WebSocket and start streaming camera state
+}
+
+const WS_THROTTLE_MS = 66; // ~15 Hz
+let MY_ID = null; // module-scope so Phase 4 can hard-filter the self-cone
+
+const arraysEqual = (a, b) => a && b && a.every((v, i) => v === b[i]);
+
+function setupSync(viewer) {
+  const proto = location.protocol === "https:" ? "wss:" : "ws:";
+  const ws = new WebSocket(`${proto}//${location.host}/ws`);
+
+  let lastSentAt = 0;
+  let lastPos = null;
+  let lastTarget = null;
+
+  const cameraMessage = () => {
+    const view = viewer.scene.view;
+    const p = view.position;
+    const t = view.getPivot();
+    return {
+      type: "camera",
+      peerId: MY_ID,
+      position: [p.x, p.y, p.z],
+      target: [t.x, t.y, t.z],
+      t: Date.now(),
+    };
+  };
+
+  const sendCamera = (force) => {
+    if (!MY_ID || ws.readyState !== WebSocket.OPEN) return;
+    const msg = cameraMessage();
+    if (!force && arraysEqual(msg.position, lastPos) && arraysEqual(msg.target, lastTarget)) {
+      return; // send-on-change: nothing moved since the last send
+    }
+    lastPos = msg.position;
+    lastTarget = msg.target;
+    ws.send(JSON.stringify(msg));
+  };
+
+  ws.addEventListener("message", (ev) => {
+    let msg;
+    try {
+      msg = JSON.parse(ev.data);
+    } catch {
+      return; // ignore non-JSON frames
+    }
+    if (msg.type === "welcome") {
+      MY_ID = msg.peerId;
+      sendCamera(true); // unconditional initial send so a stationary peer is still visible
+      return;
+    }
+    console.log("[ws] inbound", msg); // Phase 4 turns camera/leave into cones
+  });
+
+  // Sample on Potree's per-frame update hook, throttled + send-on-change.
+  viewer.addEventListener("update", () => {
+    const now = Date.now();
+    if (now - lastSentAt < WS_THROTTLE_MS) return;
+    lastSentAt = now;
+    sendCamera(false);
   });
 }
 
