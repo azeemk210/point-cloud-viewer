@@ -12,5 +12,6 @@ COPY frontend/ ./frontend/
 
 EXPOSE 8000
 
-# 0.0.0.0 so the published port is reachable; uvicorn[standard] handles WS keepalive.
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# 0.0.0.0 so the published port is reachable; lower WS keepalive so dead/proxied
+# sockets are reaped in ~10-20s instead of the ~20-40s default.
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--ws-ping-interval", "10", "--ws-ping-timeout", "10"]

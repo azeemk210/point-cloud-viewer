@@ -62,6 +62,7 @@ const arraysEqual = (a, b) => a && b && a.every((v, i) => v === b[i]);
 function setupSync() {
   const proto = location.protocol === "https:" ? "wss:" : "ws:";
   const ws = new WebSocket(`${proto}//${location.host}/ws`);
+  window.addEventListener("pagehide", () => ws.close()); // flush a clean close on tab close -> instant leave
 
   let lastSentAt = 0;
   let lastPos = null;
