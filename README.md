@@ -56,7 +56,7 @@ pip install -r requirements.txt
 
 **5. Run (S3 streaming mode)**
 ```powershell
-$env:USE_S3_FALLBACK="1"; uvicorn backend.main:app --host 127.0.0.1 --port 8000 --ws-ping-interval 10 --ws-ping-timeout 10
+$env:USE_S3_FALLBACK="1"; uvicorn backend.main:app --host 127.0.0.1 --port 8000 
 ```
 
 Open `http://127.0.0.1:8000` — give it 10–20 seconds on first load
