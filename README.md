@@ -111,7 +111,7 @@ curl.exe -L -o data\sofi.copc.laz `
 
 **2. Run without the fallback flag**
 ```powershell
-uvicorn backend.main:app --host 127.0.0.1 --port 8000 --ws-ping-interval 10 --ws-ping-timeout 10
+uvicorn backend.main:app --host 127.0.0.1 --port 8000
 ```
 
 ## Testing with Two Browser Tabs
