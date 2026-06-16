@@ -1,0 +1,10 @@
+# Large COPC data — the ~2 GB SoFi file is never committed.
+data/*.copc.laz
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+CLAUDE.md
+Plan.md
